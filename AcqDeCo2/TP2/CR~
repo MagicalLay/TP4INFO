@@ -1,0 +1,77 @@
+	1- Prise en main
+
+1) Le background knowledge est dans le ficher "train.b", les exemples positifs sont dans "train.f" et les exemples négatifs sont dans "train.n". La définition du langage d'hypothèse se fait en début du fichier .b, avec une série de prédicats semblables à ":- determination(eastbound/1,short/1).". On trouve aussi dans ce même fichier une déclaration des modes des différents prédicats utilisés dans les hypothèses, de la forme ":- modeh(1,eastbound(+train))." ou ":- modeb(1,short(+car)).". Enfin, le fichier .b commence par les deux instructions suivantes :
+
+":- set(i,2)." qui définit la limite supérieure des "couches" de nouvelles variables (2 par défaut).
+":- set(verbose,1)." qui définit le niveau de précision des commentaires d'Aleph (2 par défaut).
+
+=> On se situe donc dans le cas de l'opérateur de raffinement par défaut.
+
+2) Commande à exécuter :    ?- read_all(train).    (pour lire les fichiers .b, .f et .n)
+puis    ?- induce.   (pour sélectionner les exemples et construire une théorie). Cela entraine la création de bottom clause ([sat] [1]) puis la recherche dans l'espace des hypothèses ([reduce]). On obtient les sorties suivantes :
+
+[best clause]
+eastbound(A) :-
+   has_car(A,B), short(B), closed(B).
+[pos cover = 5 neg cover = 0] [pos-neg] [5]
+[atoms left] [0]
+[positive examples left] [0]
+[estimated time to finish (secs)] [0.0]
+
+[theory]
+
+[Rule 1] [Pos cover = 5 Neg cover = 0]
+eastbound(A) :-
+   has_car(A,B), short(B), closed(B).
+
+[Training set performance]
+          Actual
+       +        - 
+     + 5        0        5 
+Pred 
+     - 0        5        5 
+
+       5        5        10 
+
+Accuracy = 1.0
+[Training set summary] [[5,0,0,5]]
+[time taken] [0.006]
+[total clauses constructed] [70]
+
+Par défaut, l'opérateur de raffinement d'Aleph essaie toutes les combinaisons possibles de 2 clauses jusqu'à avoir 0 négatifs reconnus. Ensuite il ajoute à ces 2 clauses une 3ème jusqu'à maximiser le nombre de positifs reconnus (ici 3 clauses suffisent mais on suppose que s'il ne trouve pas le maximum de positifs reconnus il essaiera avec 4 clauses, et ainsi de suite).
+
+	2) Une affaire de famille
+
+=> METTRE CAPTURE D'ECRAN DES FICHIERS 
+
+Réponse obtenue :
+ 
+[theory]
+
+[Rule 1] [Pos cover = 4 Neg cover = 0]
+daughter(A,B) :-
+   parent(B,A), girl(A).
+
+[Training set performance]
+          Actual
+       +        - 
+     + 4        0        4 
+Pred 
+     - 0        10        10 
+
+       4        10        14 
+
+Accuracy = 1.0
+[Training set summary] [[4,0,0,10]]
+[time taken] [0.003]
+[total clauses constructed] [6]
+yes
+
+	3) Les figures du poker
+
+Dans le cas d'un carré, le nombre de mains possibles est limité car le nombre de combinaisons de cartes donnant lieu à un carré est relativement petit (le nombre de cartes contraintes est de 4). En revanche, dans le cas d'autres figures du jeu de poker, comme le brelan ou la paire, le nombre de combinaisons possibles augmente car le nombre de cartes contraintes diminue.
+Ainsi, la complexité des algortihm
+
+
+
+

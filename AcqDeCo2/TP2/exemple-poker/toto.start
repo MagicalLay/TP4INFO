@@ -1,0 +1,4 @@
+:- ['/home-reseau/piairiau/4INFO/AcqDeCo2/TP2/aleph.pl'].
+:- read_all(toto).
+:- set(recordfile,'toto.res').
+:- set(verbose,0).

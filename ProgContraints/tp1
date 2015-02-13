@@ -1,0 +1,395 @@
+/*
+% TP 1 Programmation par Contraintes
+%
+% LERAY Maud
+% AIRIAU Pierre-Marie
+%
+%
+*/
+
+:-lib(ic).
+
+/*
+%%%%%%%%%%%%%%%%
+De Prolog à Prolog+ic
+%%%%%%%%%%%%%%%%
+*/
+
+voiture("rouge").
+voiture("vert(Clair)").
+voiture("gris").
+voiture("blanc").
+
+bateau("vert").
+bateau("noir").
+bateau("blanc").
+
+choixCouleur(X,X) :- 
+	voiture(X), 
+	bateau(X).
+
+/*
+question 1.2
+
+Prolog est un solveur de contraintes (passives uniquement) utilisant l'algorithme d'unification de Robinson.
+On peut représenter les requetes par un arbre de recherche où les feuilles sont soit les succes soit les echecs
+*/
+
+isBetween(X,X,X) :- 
+	!.
+isBetween(X,X,Z) :- 
+	X<Z.
+isBetween(X,Y,Z) :- 
+	Y<Z,
+	A is Y+1,
+	isBetween(X,A,Z).
+
+commande(NbR,NbC) :- 
+	isBetween(NbR, 5000, 10000),
+	isBetween(NbC, 9000, 20000),
+	NbR>=NbC.
+	
+/*
+question 1.6
+
+On peut dire que Prolog ne comprend pas les maths car ont est obligé d'instancier les variables pour qu'il puisse en faire quelque chose. Prolog n'est pas capable de faire de génération mathématique, il peut simplement calculer ce qu'on lui dit de calculer.
+
+Si l'on passe le prédicat >= avant les "isBetween", le prédicat commande ne fonctionnera pas car NbR et NbC ne seront pas instanciés.
+
+On parle de "Generate and Test" avec Prolog car Prolog instancie les variables d'abord, avant de tester si elles respectent les contraintes => beaucoup d'essais nécessaires
+
+*/
+
+commande2(NbR,NbC) :- 
+	NbR #:: 5000..10000,
+	NbC #:: 9000..20000,
+	NbR#>=NbC.
+
+
+commande3(NbR,NbC) :- 
+	NbR #:: 5000..10000,
+	NbC #:: 9000..20000,
+	NbR#>=NbC,
+	labeling([NbR,NbC]).
+
+
+/*
+%%%%%%%%%%%%%%%%
+Zoologie
+%%%%%%%%%%%%%%%%
+*/
+
+chapie(Chats,Pies,Pattes,Tetes):-
+	Chats #:: 0..inf,
+	Pies #:: 0..inf,
+	Tetes #:: 0..inf,
+	Pattes #:: 0..inf,
+	Pattes #= 4*Chats + 2*Pies,
+	Tetes #= Chats + Pies.
+	
+	
+chapie2(Chats,Pies,Pattes,Tetes) :-
+	Chats #:: 0..500,
+	Pies #:: 0..500,
+	Tetes #:: 0..500,
+	Pattes #:: 0..500,
+	Pattes#= 3*Tetes,
+	Pattes #= 4*Chats + 2*Pies,
+	Tetes #= Chats + Pies,
+	labeling([Chats,Pies,Pattes,Tetes]).
+
+/*
+Si on laisse 0..inf, le prédicat chapie2 ne renvoie rien car il ne s'arrete jamais.
+Il a donc fallu donner un interval borné.
+*/
+
+/*
+%%%%%%%%%%%%%%%%
+Le "OU" en contraintes
+%%%%%%%%%%%%%%%%
+*/
+
+/*
+Question 1.11
+*/
+
+vabs(Val,Val) :- 
+	Val>=0,
+	!.
+	
+vabs(Val,AbsVal) :-
+	Val<0,
+	AbsVal is -1*Val,
+	!.
+
+vabs2(Val, AbsVal) :- 
+	Val #:: -100..100,
+	AbsVal #:: 0..100,
+	(Val>=0 and AbsVal #= Val) or
+	(Val<0 and AbsVal #= -1*Val),
+	labeling([Val, AbsVal]).
+
+
+/*
+Question 1.12
+
+[eclipse 122]: X #:: -10..10, vabs(X,Y).
+instantiation fault in Y{-10 .. 10} >= 0
+Abort
+
+[eclipse 143]: X #:: -10..10, vabs2(X,Y).
+X = -10
+Y = 10
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+X = -9
+Y = 9
+..
+X = -1
+Y = 1
+Yes (0.00s cpu, solution 10, maybe more) ? ;
+X = 0
+Y = 0
+Yes (0.00s cpu, solution 11, maybe more) ? ;
+X = 1
+Y = 1
+Yes (0.00s cpu, solution 12, maybe more) ? ;
+..
+X = 9
+Y = 9
+Yes (0.00s cpu, solution 20, maybe more) ? ;
+X = 10
+Y = 10
+Yes (0.00s cpu, solution 21)
+
+
+On peut remarquer que dans le premier cas, ceci ne fonctionne pas car X est défini par une contrainte. 
+Pour que cela fonctionne avec la seconde version, il a fallu borner les paramètres pour les mêmes raisons qu'à la question 1.10
+*/
+
+/*
+Question 1.13
+*/
+
+faitListe([],0,_,_) :-
+	!.
+
+faitListe([X|Y], Taille, Min, Max) :-
+	X #:: Min..Max,
+	Taille #:: 0..100,
+	TailleN #= Taille-1,
+	labeling([X,Taille]),
+	faitListe(Y,TailleN,Min,Max).
+	
+/*
+Question 1.14
+*/
+suite([]).
+
+suite([X,Y]) :-
+	X #:: -10..10,
+	Y #:: -10..10,
+	labeling([X,Y]),
+	!.
+
+suite([X,Y,Z|A]) :-
+	X #:: -10..10,
+	Y #:: -10..10,
+	Z #:: -10..10,
+	X #= vabs2(Y) - Z,
+	labeling([X,Y,Z]),
+	suite([Y,Z|A]).
+
+/*
+Question 1.15
+*/
+
+inc1([B,C,D|_], 9, B,C,D) :- 
+	!.
+
+inc1([_,Y,Z|A], N, B,C,D) :-
+	N2 is N+1, 
+	inc1([Y,Z|A], N2, B,C,D).
+
+inc([X,Y,Z|A]) :- 
+	suite([X,Y,Z|A]),
+	inc1([X,Y,Z|A],0,X,Y,Z).
+
+/*
+
+%%%%%%%%%%%%%%%
+Tests
+%%%%%%%%%%%%%%%
+
+question 1.1
+
+[eclipse 6]: choixCouleur(X,Y).
+X = "blanc"
+Y = "blanc"
+Yes (0.00s cpu)
+
+
+Question 1.3
+
+[eclipse 11]: isBetween(60,40,100).
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+No (0.00s cpu)
+
+[eclipse 12]: isBetween(X,40,100).
+X = 40
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+X = 41
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+X = 42
+Yes (0.00s cpu, solution 3, maybe more) ? ;
+X = 43
+Yes (0.00s cpu, solution 4, maybe more) ? ;
+X = 44
+Yes (0.00s cpu, solution 5, maybe more) ? ;
+...
+
+Question 1.4
+
+[eclipse 19]: commande(X,Y).
+
+X = 9000
+Y = 9000
+Yes (3.27s cpu, solution 1, maybe more) ? ;
+X = 9001
+Y = 9000
+Yes (3.28s cpu, solution 2, maybe more) ? ;
+X = 9001
+Y = 9001
+Yes (3.28s cpu, solution 3, maybe more) ? ;
+X = 9002
+Y = 9000
+Yes (3.28s cpu, solution 4, maybe more) ? ;
+X = 9002
+Y = 9001
+...
+il y a approximativement 1001*500 solutions, soit 500 500 solutions
+
+Question 1.7
+
+[eclipse 22]: commande2(NbR,NbC).
+NbR = NbR{9000 .. 10000}
+NbC = NbC{9000 .. 10000}
+Delayed goals:
+NbC{9000 .. 10000} - NbR{9000 .. 10000} #=< 0
+Yes (0.00s cpu)
+
+Il apparait que Prolog Delay la contrainte #<= et ne la résout finalement pas.
+Il donne cependant les intervalles de réponses corrects.
+
+Question 1.8
+
+[eclipse 24]: commande3(NbR,NbC).
+lists.eco  loaded in 0.00 seconds
+NbR = 9000
+NbC = 9000
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+NbR = 9001
+NbC = 9000
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+NbR = 9001
+NbC = 9001
+Yes (0.00s cpu, solution 3, maybe more) ? ;
+
+Question 1.9
+
+[eclipse 62]: chapie(2,Pies,Pattes,5).
+Pies = 3
+Pattes = 14
+Yes (0.00s cpu)
+Question 1.10
+[eclipse 89]: chapie2(Chats,Pies,Pattes,Tetes).
+lists.eco  loaded in 0.00 seconds
+Chats = 0
+Pies = 0
+Pattes = 0
+Tetes = 0
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+Chats = 1
+Pies = 1
+Pattes = 6
+Tetes = 2
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+Chats = 2
+Pies = 2
+Pattes = 12
+Tetes = 4
+Yes (0.00s cpu, solution 3, maybe more) ? ;
+...
+
+Question 1.11
+
+[eclipse 94]: vabs(2,X).
+X = 2
+Yes (0.00s cpu)
+[eclipse 95]: vabs(-2,X).
+X = 2
+Yes (0.00s cpu)
+
+[eclipse 120]: vabs2(7,X).
+X = 7
+Yes (0.00s cpu)
+[eclipse 121]: vabs2(-7,X).
+X = 7
+Yes (0.00s cpu)
+
+Question 1.13
+
+[eclipse 154]: faitListe([1,3,2],Taille,1,3).
+Taille = 3
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+
+[eclipse 155]: faitListe(X,3,1,3).
+X = [1, 1, 1]
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+X = [1, 1, 2]
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+X = [1, 1, 3]
+Yes (0.00s cpu, solution 3, maybe more) ? ;
+X = [1, 2, 1]
+Yes (0.00s cpu, solution 4, maybe more) ? ;
+...
+
+Question 1.14
+
+[eclipse 171]: suite([2,3,1,-2,1]).
+Yes (0.00s cpu)
+
+[eclipse 172]: suite([X,Y,Z|A]).
+X = 0
+Y = -10
+Z = 10
+A = []
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+X = 1
+Y = -10
+Z = 9
+A = []
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+X = 2
+Y = -10
+Z = 8
+A = []
+Yes (0.00s cpu, solution 3, maybe more) ? ;
+X = 3
+Y = -10
+Z = 7
+A = []
+Yes (0.00s cpu, solution 4, maybe more) ? ;
+X = 4
+Y = -10
+Z = 6
+A = []
+Yes (0.00s cpu, solution 5, maybe more) ? ;
+...
+
+Question 1.15
+
+[eclipse 182]: inc([1,3,2,-1,-1,2,3,1,-2,1,3,2,-1]).
+Yes (0.00s cpu)
+
+
+*/

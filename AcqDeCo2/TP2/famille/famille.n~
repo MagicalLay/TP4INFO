@@ -1,0 +1,10 @@
+daughter(tom,ann).
+daughter(bob,tom).
+daughter(mary,tom).
+daughter(eve,lisa).
+daughter(eve,bob).
+daughter(lisa,bob).
+daughter(rosy,ann).
+daughter(tom,rosy).
+daughter(mary,rosy).
+daughter(mary,ann).

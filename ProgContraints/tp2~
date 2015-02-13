@@ -1,0 +1,228 @@
+/*
+% TP 1 Programmation par Contraintes
+%
+% LERAY Maud
+% AIRIAU Pierre-Marie
+%
+%
+*/
+
+:- lib(ic).
+:- lib(ic_symbolic).
+
+/* Question 2.1 */
+
+:- local domain(color(rouge,verte,blanche,jaune,bleue)).
+:- local domain(country(angleterre,espagne,ukraine,norvege,japon)).
+:- local domain(drink(cafe,the,jus_orange,eau,lait)).
+:- local domain(animal(chien,cheval,serpent,renard,zebre)).
+:- local domain(car(bmw,toyota,ford,honda,datsun)).
+
+
+
+/* Question 2.2 */
+
+domaines_maison(m(Pays,Couleur,Boisson,Voiture,Animal,Numero)) :-
+	Pays &:: country,
+	Couleur &:: color,
+	Boisson &:: drink,
+	Voiture &:: car,
+	Animal &:: animal,
+	Numero #:: 1..5.
+
+/* Question 2.3 */
+
+rue([M1,M2,M3,M4,M5]) :-
+	M1 = m(P1,C1,B1,V1,A1,1),
+	domaines_maison(M1),
+	M2 = m(P2,C2,B2,V2,A2,2),
+	domaines_maison(M2),
+	M3 = m(P3,C3,B3,V3,A3,3),
+	domaines_maison(M3),
+	M4 = m(P4,C4,B4,V4,A4,4),
+	domaines_maison(M4),
+	M5 = m(P5,C5,B5,V5,A5,5),
+	domaines_maison(M5),
+	ic_symbolic:alldifferent([P1,P2,P3,P4,P5]),
+	ic_symbolic:alldifferent([C1,C2,C3,C4,C5]),
+	ic_symbolic:alldifferent([B1,B2,B3,B4,B5]),
+	ic_symbolic:alldifferent([V1,V2,V3,V4,V5]),
+	ic_symbolic:alldifferent([A1,A2,A3,A4,A5]).
+
+/* Question 2.4 */
+
+ecrit_maisons(Rue) :- 
+	rue(Rue),
+	(foreach(Elem,Rue) 
+	do
+		writeln(Elem)
+	).
+
+/* Question 2.5 */
+
+getVarList(Rue,List) :-
+	rue(Rue),
+	(foreach(m(P,C,B,V,A,_), Rue),
+		fromto([],In,Out,List)
+		do
+			append(In,[P,C,B,V,A],Out)
+	).
+
+labeling_symbolic(List) :- 
+	(foreach(Elem, List)
+	do
+		ic_symbolic:indomain(Elem)
+	).
+
+/* Question 2.6 */
+
+resoudre(Rue) :- 
+	rue(Rue),
+	getVarList(Rue,List),
+	labeling_symbolic(List).
+
+/* Question 2.7 */
+
+contraintesTropEasy(Rue) :- 
+	(foreach(m(P,C,B,V,A,N), Rue)
+		do
+			(
+				(P&=angleterre) #= (C&=rouge),
+				(P&=espagne) #= (A&=chien),
+				(C&=verte) #= (B&=cafe),
+				(P&=ukraine) #= (B&=the),
+				(V&=bmw) #= (A&=serpent),
+				(C&=jaune) #= (V&=toyota),
+				(B&=lait) #= (N#=3),
+				(P&=norvege) #= (N#=1),
+				(V&=honda) #= (B&=jus_orange),
+				(P&=japon) #= (V&=datsun)
+			)	
+	).
+
+contrainteE(Rue) :-
+	(foreach(m(_,Cb,_,_,_,Nb), Rue), param(Rue)
+	do
+	(
+		(foreach(m(_,Cv,_,_,_,Nv), Rue), param(Cb,Nb)
+		do
+			(Cv&=verte and Cb&=blanche) => (Nb #= Nv+1)
+		)
+	)	
+	).	
+
+contrainteJ(Rue) :-
+	(foreach(m(_,_,_,Vf,_,Nf), Rue), param(Rue)
+	do
+	(
+		(foreach(m(_,_,_,_,Ar,Nr), Rue), param(Vf,Nf)
+		do
+			(Vf&=ford and Ar&=renard) => (Nr #= Nf+1 or Nr #= Nf-1)
+		)
+	)
+	).	
+
+contrainteK(Rue) :-
+	(foreach(m(_,_,_,Vt,_,Nt), Rue), param(Rue)
+	do
+	(
+		(foreach(m(_,_,_,_,Ac,Nc), Rue), param(Vt,Nt)
+		do
+			(Vt&=toyota and Ac&=cheval) => (Nt #= Nc+1 or Nt #= Nc-1)
+		)
+	)
+	).		
+
+contrainteN(Rue) :-
+	(foreach(m(Pn,_,_,_,_,Nn), Rue), param(Rue)
+	do
+	(
+		(foreach(m(_,Cb,_,_,_,Nb), Rue), param(Pn,Nn)
+		do
+			(Pn&=norvege and Cb&=bleue) => (Nn #= Nb+1 or Nn #= Nb-1)	
+		)
+	)
+	).	
+
+resoudreUltime(Rue) :-
+	rue(Rue),
+	getVarList(Rue,List),
+	contraintesTropEasy(Rue),
+	contrainteE(Rue),
+	contrainteJ(Rue),
+	contrainteK(Rue),
+	contrainteN(Rue),
+	labeling_symbolic(List),
+	ecrit_maisons(Rue),
+	!.
+
+/* Question 2.8
+
+c'est donc le japonais qui a un zebre et le norvegien qui boit de l'eau !
+*/
+
+/* Question de compréhension 
+
+le fait d'instancier les variables numéro des maisons à la question 2.3 permet de s'assurer du respect de l'ordre des maisons dans Rue. Ne pas le faire aurait entrainé le fait que les maisons auraient pu être placées dans le désordre dans Rue.
+*/
+
+/*
+Tests
+
+Question 2.3
+
+[eclipse 17]: rue([m(angleterre, rouge, cafe, bmw, chien, 1),m(espagne, verte, the, toyota, cheval, 2),m(ukraine,blanche, jus_orange, ford, serpent, 3),m(norvege, jaune, eau, honda, renard, 4),m(japon, bleue, lait, datsun, zebre, 5)]).
+
+Yes (0.00s cpu)
+
+[eclipse 18]: rue([m(angleterre, rouge, cafe, bmw, chien, 1),m(espagne, verte, the, toyota, cheval, 2),m(ukraine,blanche, jus_orange, ford, serpent, 3),m(norvege, jaune, eau, honda, renard, 4),m(japon, bleue, lait, datsun, renard, 5)]).
+
+No (0.00s cpu)
+
+Question 2.4
+
+[eclipse 21]: ecrit_maisons([m(angleterre, rouge, cafe, bmw, chien, 1),m(espagne, verte, the, toyota, cheval, 2),m(ukraine,blanche, jus_orange, ford, serpent, 3),m(norvege, jaune, eau, honda, renard, 4),m(japon, bleue, lait, datsun, zebre, 5)]).
+m(angleterre, rouge, cafe, bmw, chien, 1)
+m(espagne, verte, the, toyota, cheval, 2)
+m(ukraine, blanche, jus_orange, ford, serpent, 3)
+m(norvege, jaune, eau, honda, renard, 4)
+m(japon, bleue, lait, datsun, zebre, 5)
+
+Yes (0.00s cpu)
+
+Question 2.5
+
+[eclipse 26]: getVarList([m(angleterre, rouge, cafe, bmw, chien, 1),m(espagne, verte, the, toyota, cheval, 2),m(ukraine,blanche, jus_orange, ford, serpent, 3),m(norvege, jaune, eau, honda, renard, 4),m(japon, bleue, lait, datsun, zebre, 5)],List).
+
+List = [angleterre, rouge, cafe, bmw, chien, espagne, verte, the, toyota, cheval, ukraine, blanche, jus_orange, ford, serpent, norvege, jaune, eau, honda, ...]
+Yes (0.00s cpu)
+
+Question 2.6
+
+[eclipse 31]: resoudre(Rue).
+
+Rue = [m(angleterre, rouge, cafe, bmw, chien, 1), m(espagne, verte, the, toyota, cheval, 2), m(ukraine, blanche, jus_orange, ford, serpent, 3), m(norvege, jaune, eau, honda, renard, 4), m(japon, bleue, lait, datsun, zebre, 5)]
+Yes (0.00s cpu, solution 1, maybe more) ? ;
+
+Rue = [m(angleterre, rouge, cafe, bmw, chien, 1), m(espagne, verte, the, toyota, cheval, 2), m(ukraine, blanche, jus_orange, ford, serpent, 3), m(norvege, jaune, eau, honda, zebre, 4), m(japon, bleue, lait, datsun, renard, 5)]
+Yes (0.00s cpu, solution 2, maybe more) ? ;
+...
+(les solutions sont cohérentes car il n'y a pas de doublons). 
+
+Question 2.7
+
+[eclipse 83]: resoudreUltime(Rue).
+m(norvege, jaune, eau, toyota, renard, 1)
+m(ukraine, bleue, the, ford, cheval, 2)
+m(angleterre, rouge, lait, bmw, serpent, 3)
+m(japon, verte, cafe, datsun, zebre, 4)
+m(espagne, blanche, jus_orange, honda, chien, 5)
+
+Rue = [m(norvege, jaune, eau, toyota, renard, 1), m(ukraine, bleue, the, ford, cheval, 2), m(angleterre, rouge, lait, bmw, serpent, 3), m(japon, verte, cafe, datsun, zebre, 4), m(espagne, blanche, jus_orange, honda, chien, 5)]
+Yes (0.01s cpu)
+
+*/
+
+
+
+	
