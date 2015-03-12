@@ -1,0 +1,63 @@
+/*
+Contraintes, 4INFO
+TP 5 : Contraindre puis chercher
+
+Leray Maud
+Airiau Pierre-Marie
+*/
+
+:- lib(ic).
+:- lib(branch_and_bound).
+
+% Question 5.1 %
+
+nbTech([](5,7,2,6,9,3,7,5,3)).
+qteJour([](140,130,60,95,70,85,100,30,45)).
+benef([](4,5,8,5,6,4,7,10,11)).
+
+fabriquer([](S1,S2,S3,S4,S5,S6,S7,S8,S9)) :-
+	S1 :: 0..1,
+	S2 :: 0..1,
+	S3 :: 0..1,
+	S4 :: 0..1,
+	S5 :: 0..1,
+	S6 :: 0..1,
+	S7 :: 0..1,
+	S8 :: 0..1,
+	S9 :: 0..1.
+
+% Question 5.2 %
+
+produitVect(X,Y,R) :-
+	dim(X,Dim),
+	dim(Y,Dim),
+	dim(R,Dim),
+	(foreachelem(A, X), foreachelem(B, Y), foreachelem(C, R) do
+	C #= A * B
+	).
+
+ouvrierNecessaires(X,Nb) :-
+	fabriquer(X),
+	nbTech(Y),
+	produitVect(X,Y,R),
+	(foreachelem(N,R), fromto(0,In,Out,Nb)
+	do(
+		Out#=In+N
+	)).
+
+/*************
+Tests
+**************
+
+=> Question 5.2
+
+[eclipse 32]: ouvrierNecessaires([](0,0,1,1,0,1,0,1,1),R).
+R = 19
+Yes (0.00s cpu)
+[eclipse 33]: ouvrierNecessaires(X,R).
+X = [](_217{[0, 1]}, _263{[0, 1]}, _309{[0, 1]}, _355{[0, 1]}, _401{[0, 1]}, _447{[0, 1]}, _493{[0, 1]}, _539{[0, 1]}, _585{[0, 1]})
+R = R{0 .. 47}
+There are 17 delayed goals. Do you want to see them? (y/n) 
+
+
+*/

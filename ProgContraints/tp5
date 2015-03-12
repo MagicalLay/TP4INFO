@@ -1,0 +1,200 @@
+/*
+Contraintes, 4INFO
+TP 5 : Contraindre puis chercher
+
+Leray Maud
+Airiau Pierre-Marie
+*/
+
+:- lib(ic).
+:- lib(branch_and_bound).
+
+% Question 5.1 %
+
+nbTech([](5,7,2,6,9,3,7,5,3)).
+qteJour([](140,130,60,95,70,85,100,30,45)).
+benef([](4,5,8,5,6,4,7,10,11)).
+
+fabriquer([](S1,S2,S3,S4,S5,S6,S7,S8,S9)) :-
+	S1 #:: 0..1,
+	S2 #:: 0..1,
+	S3 #:: 0..1,
+	S4 #:: 0..1,
+	S5 #:: 0..1,
+	S6 #:: 0..1,
+	S7 #:: 0..1,
+	S8 #:: 0..1,
+	S9 #:: 0..1.
+
+% Question 5.2 %
+
+produitVect(X,Y,R) :-
+	dim(X,Dim),
+	dim(Y,Dim),
+	dim(R,Dim),
+	(foreachelem(A, X), foreachelem(B, Y), foreachelem(C, R) do
+		C #= A * B
+	).
+
+ouvrierNecessaires(X,Nb) :-
+	fabriquer(X),
+	nbTech(Y),
+	produitVect(X,Y,R),
+	(foreachelem(N,R), fromto(0,In,Out,Nb)
+	do(
+		Out#=In+N
+	)).
+
+benefTot(F,Res) :-
+	qteJour(X),
+	benef(Y),
+	produitVect(X,Y,R),
+	fabriquer(F),
+	produitVect(R, F, Res).
+
+profitTot(F,R) :- 
+	benefTot(F,X),
+	(foreachelem(N,X), fromto(0,In,Out,R)
+	do(
+		Out#=In+N
+	)).
+
+% Question 5.3 %
+
+pose_contraintes(Fabriquer, NbTech, Profit) :-
+	NbTech #=< 22,
+	ouvrierNecessaires(Fabriquer,NbTech),
+	labeling(Fabriquer),
+	profitTot(Fabriquer, Profit),
+	labeling([Profit, NbTech]).
+	
+% Question 5.4 %
+
+exemple(X) :-
+	[X,Y,Z,W] #:: [0..10],
+	X #= Z+Y+2*W,
+	X #\= Z+Y+W,
+	%labeling([X]),
+	labeling([X,Y,Z,W]).
+
+% Question 5.5 %
+
+diffProfit(P) :-
+	pose_contraintes(_,_,Profit),
+	P is 4420 - Profit.
+
+% Question 5.6 %
+
+optimum(NbTech,Profit) :- pose_contraintes(_,NbTech,Profit),
+	Profit #>= 1000.
+
+/*************
+Tests
+**************
+
+=> Question 5.2
+
+[eclipse 32]: ouvrierNecessaires([](0,0,1,1,0,1,0,1,1),R).
+R = 19
+Yes (0.00s cpu)
+[eclipse 33]: ouvrierNecessaires(X,R).
+X = [](_217{[0, 1]}, _263{[0, 1]}, _309{[0, 1]}, _355{[0, 1]}, _401{[0, 1]}, _447{[0, 1]}, _493{[0, 1]}, _539{[0, 1]}, _585{[0, 1]})
+R = R{0 .. 47}
+There are 17 delayed goals. Do you want to see them? (y/n) 
+
+
+?- benefTot(F, R).
+F = [](_2134{[0, 1]}, _2180{[0, 1]}, _2226{[0, 1]}, _2272{[0, 1]}, _2318{[0, 1]}, _2364{[0, 1]}, _2410{[0, 1]}, _2456{[0, 1]}, _2502{[0, 1]})
+R = [](_2732{0 .. 560}, _2989{0 .. 650}, _3246{0 .. 480}, _3503{0 .. 475}, _3760{0 .. 420}, _4017{0 .. 340}, _4274{0 .. 700}, _4531{0 .. 300}, _4791{0 .. 495})
+There are 9 delayed goals.
+Yes (0.00s cpu)
+
+
+?- profitTot(F, X).
+F = [](_2120{[0, 1]}, _2166{[0, 1]}, _2212{[0, 1]}, _2258{[0, 1]}, _2304{[0, 1]}, _2350{[0, 1]}, _2396{[0, 1]}, _2442{[0, 1]}, _2488{[0, 1]})
+X = X{0 .. 4420}
+There are 17 delayed goals.
+Yes (0.00s cpu)
+
+=> Question 5.3
+
+?- pose_contraintes(F, N, P).
+F = [](_341{[0, 1]}, _387{[0, 1]}, _433{[0, 1]}, _479{[0, 1]}, _525{[0, 1]}, _571{[0, 1]}, _617{[0, 1]}, _663{[0, 1]}, _709{[0, 1]})
+N = N{0 .. 22}
+P = P{0 .. 4420}
+There are 34 delayed goals.
+Yes (0.00s cpu)
+
+en intégrant les labeling, nous obtenons 232 solutions, dont voici les premières :
+
+?- pose_contraintes(F, N, P).
+F = [](0, 0, 0, 0, 0, 0, 0, 0, 0)
+N = 0
+P = 0
+Yes (0.00s cpu, solution 1, maybe more)
+F = [](0, 0, 0, 0, 0, 0, 0, 0, 1)
+N = 3
+P = 495
+Yes (0.00s cpu, solution 2, maybe more)
+F = [](0, 0, 0, 0, 0, 0, 0, 1, 0)
+N = 5
+P = 300
+Yes (0.00s cpu, solution 3, maybe more)
+
+=> Question 5.4
+
+?- minimize(exemple(X), X).
+X = 1
+Yes (0.00s cpu)
+Found a solution with cost 1
+Found no solution with cost -1.0Inf .. 0
+
+?- minimize(exemple(X), X).
+X = 2
+Yes (0.00s cpu)
+Found a solution with cost 2
+Found no solution with cost -1.0Inf .. 1
+
+Les résultats rendus par eclipse_prolog sont différents car dans le premier cas où seul X est labelé, W,Y et Z ne sont 
+pas tenus de prendre leurs valeurs dans les entiers entre 0 et 10, et X trouve donc sa valeur minimale avec W=0.5.
+Dans le second cas, W est forcé d'être un entier entre 0 et 10 et ne peut donc pas être 0.5 => il prend donc la valeur 1 et X=2. 
+
+=> Question 5.5
+
+?- minimize(diffProfit(P), P).
+P = 1755
+Yes (0.03s cpu)
+Found a solution with cost 4420
+Found a solution with cost 3925
+Found a solution with cost 3625
+Found a solution with cost 3225
+Found a solution with cost 2925
+Found a solution with cost 2885
+Found a solution with cost 2585
+Found a solution with cost 2465
+Found a solution with cost 2450
+Found a solution with cost 2410
+Found a solution with cost 2405
+Found a solution with cost 2105
+Found a solution with cost 1930
+Found a solution with cost 1755
+Found no solution with cost -1.0Inf .. 1754
+
+Nous avons voulu minimiser l'écart entre le profit maximal (4420) et le profit réalisé. Nous obtenons un écart minimum de 1755,
+donc le profit maximum est de 4420 - 1755 = 2665
+
+=> Question 5.6
+
+?- minimize(optimum(Nb, P), Nb).
+Nb = 7
+P = 1040
+Yes (0.00s cpu)
+Found a solution with cost 10
+Found a solution with cost 9
+Found a solution with cost 8
+Found a solution with cost 7
+Found no solution with cost -1.0Inf .. 6
+
+On trouve donc que le nombre minimum d'ouvriers permettant de gagner au moins 1000 euros par jours est 7, avec 1040 euros. 
+
+*/
