@@ -1,0 +1,36 @@
+LERAY Maud - AIRIAU Pierre-Marie
+
+Acquisition de Connaissances 
+TP4 Analyse de Concepts
+
+II - Système Solaire
+
+Question 1 : CAPTURES D ECRAN ?
+
+Question 2 : CAPTURE ECRAN conexp et siena
+Si l'on considère Pluton comme une planète, il devient l'unique représentant des planètes éloignées du Soleil, avec satellite et petites.
+On observe que la FCA génère toutes les combinaisons d'attributs ayant au moins un représentant parmi les objets.
+
+Question 3 : CAPTURE ECRAN 
+En mode "show only exact matches", siena affiche les objets seulement lorsque toutes les combinaisons d'attributs ont été effectués et donc que le système est entièrement défini.
+En mode "show all matches", Siena affiche également les objets appartenant aux combinaisons d'attributs intermédiaires (non complètes).
+
+III - Echelle conceptuelle
+
+Question 4 : 
+taille des disques durs : numérique (discrétisés)
+types de bus système : nominal
+moyen de distribution : booléen (2 attributs à 1 ou 0)
+
+IV - Recensement américain : Implications-Règles d'association
+
+Question 5 : 
+On constate que les règles extraites et la base d'implication du fichier de recensement présentent des formes très proches, mais que les règles rendent compte de plus de leurs précisions sous forme statistique.
+
+Question 6 :
+Le treillis est beaucoup trop grand pour être exploitable visuellement, ses dimensions le rendent illisibles. 
+Un tel treillis peut permettre de trouver le simplications exactes. L'analyse de concept met à disposition pour l'analyse de tels treillis des algorithmes, tels que le Next-Closure, qui permettent de créer une nouvelle représentation du treillis, complète et non redondante (à l'image de la base d'implication Duquenne-guiges).
+
+V - Base de comics gérée avec Camelis
+
+

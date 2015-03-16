@@ -1,0 +1,298 @@
+Changes between version 1.6 and 1.7 of the ToscanaJ
+program suite:
+
+Affecting different programs:
+=============================
+- CSC import has been enhanced to import not only diagrams, but also concrete scales
+  and contexts for which no diagram exists.
+- OAL export of a context with unassigned attributes will now start with a line
+  containing a colon followed by the list of unassigned attributes.
+- Fixes to support running the software on Java 6 and 7 installations.
+
+Specific for ToscanaJ:
+======================
+
+Specific for Elba:
+==================
+
+Specific for Siena (still not fully complete):
+==============================================
+- Bugfix: starting a line with a colon used to create an object with no name, which
+  caused errors when trying to display the object in a label. The behavior has been
+  changed to interpret such a line as a list of attributes that may or may not be
+  assigned to any object, thus allowing to define any type of context.
+
+Other new experimental features:
+================================
+
+
+
+
+Changes between version 1.5.1 and 1.6 of the ToscanaJ
+program suite:
+
+Affecting different programs:
+=============================
+- Label scrollbars are now inside the normal label bounds instead of extending to
+  the right.
+- if a node collides with a line it is not connected to, it will be shown red instead
+  of its normal color.
+- Elba and Siena have now an executable Jar file to start them. This allows starting
+  them without scripts if the graphical user interface allows starting Java files.
+- the preferences for the diagram have new options to set the width of the normal
+  (i.e. not highlighted) lines and for the width of the stroke of the nodes
+- Bugfix: when editing a context in a way that an attribute which was connected to
+  the top is not anymore, a NullPointerException was raised -- this is fixed now
+- Bugfix: displaying the n-dimensional vectors for debugging purposes works again
+- some undo support: movements in the diagram editor can be undone/redone as long as
+  the diagram is visible
+- context menu on diagram list for editors: Siena and Elba both offer the option to
+  duplicate or remove diagrams using a context menu on the list of diagrams
+- new manipulators: the attribute-additive manipulator now should minimize movement
+  while maintaining attribute-additivity, the new chain-based one tries also to
+  respect all chains in the diagram
+- the context editor now has a menu button which contains entries to export the
+  context into Burmeister (CXT) and Object-Attribute List (OAL) format, plus the
+  consistency check if possible (i.e. the feature is not visible anymore in Siena)
+
+Specific for ToscanaJ:
+======================
+- the distribution shown in a nested view is now based on the whole diagram, not
+  just the local diagram. For example: if a node of the inner diagram has 100% of
+  the objects of that inner diagram, the old verison would have displayed "100%",
+  the fixed version will display whatever percentage of objects the outer node has
+  in relation to the full object set
+
+Specific for Elba:
+==================
+- Bugfix: SQL object labels do not write beyond the bounds anymore.
+- SQL scripts, Access and Excel files are now set as relative paths were possible
+
+Specific for Siena (still not fully complete):
+==============================================
+- nested diagrams can now be created using the context menu on the diagram list
+- transition arrows now have more sensible lengths
+- better placement of state markers for temporal animations
+- moving transition arrows is now restricted to the central part of an arrow,
+  dragging either end (1/4 of the length) results in moving only the corresponding
+  tip. This way the length and angle can be adjusted if required.
+- OAL import now gives line number on error
+
+Other new experimental features:
+================================
+- DataDump class can now be used to create images for each diagram from the command
+  line
+
+
+Changes between versions 1.5 and 1.5.1 of the ToscanaJ 
+program suite:
+
+Affecting different programs:
+=============================
+- Bugfix: on re-reading a <description> of an attribute, no additional indirection
+  (an extra <description>) is generated anymore.
+- Bugfix: mixed content in <attribute> (as the <description>) does not cause problems
+  with whitespace in the labels anymore.
+- Bugfix: selecting graphic export formats works properly now. In older versions always
+  the first export format for a particular format was selected, even if multiple options
+  existed.
+- re-creating a diagram from a context via the context editor tries to preserve the
+  diagram. At the moment this is true only for the attribute-additive parts, if nodes
+  have extra offsets (e.g. the bottom of an interordinal scale) this will get lost.
+  Chains not stored in the attibutes (e.g. ordinal scales generated by Elba) will
+  get lost, too -- the diagram will potentially look the same, but the chains will
+  not be enforced when manipulating with the additive manipulator.
+
+Specific for ToscanaJ:
+======================
+- Bugfix: the ShellExecuteDatabaseViewer can now handle absolute file system locations 
+  again (in addition to URLs and relative locations).
+
+Specific for Elba:
+==================
+- Bugfix: the layout for scales created by the generators has been reset to the old 
+  version of 1.4, since ordinal scales are not layed out in chains with the new approach.
+
+
+
+Changes between version 1.4.1 and 1.5 of the ToscanaJ 
+program suite:
+
+Affecting different programs:
+=============================
+- grid size now changes with a factor of third root of two. This means after
+  three refinements the nodes are all on a grid location again.
+- CSC import is greatly enhanced, most importantly it supports include files now.
+- Bugfix: saving files with descriptions on objects or attributes works again.
+- Bugfix: lines now connect properly to the corners of the labels -- in some 
+  situations there was a visible offset before.
+- creating lattice diagrams is now a lot faster (noticable esp. when importing
+  Cernato or Burmeister files).
+- the former "n-dim" manipulator is now called "Additive" (credit goes to Richard
+  Cole for finding the obvious).
+- the restrictions of the additive manipulator on diagrams created without external
+  order (all but Cernato-import) are reduced -- the manipulator appears like the
+  ideal manipulator on meet-irreducible nodes now but allows dragging other nodes
+  while keeping additivity. This applies only to new diagrams, existing diagrams
+  need to be recreated (e.g. by hitting "Create" in the context editor).
+
+Specific for ToscanaJ:
+======================
+- the database viewer for opening documents (ShellExectuteDatabaseViewewr) now
+  starts external programs in a separate Thread, thus not blocking the UI anymore.
+- the HTMLDatabaseViewer does support giving a title in the way typical for HTML
+  (<html>/<head>/<title>). This is used as the dialog title for the views created.
+- a new database viewer called "InfoDatabaseViewer" allows showing plain text or
+  HTML found either directly in the database or via a URL found in the database
+- Bugfix: when changing diagram schemas, the background can be erased again.
+- result lists from the database can now be sorted using an ORDER BY on each column
+  used (in the given order). This can be turned on in the preferences.
+
+Specific for Elba:
+==================
+- Elba can now connect to Excel files directly, using a new option in the DB
+  connection dialog. This avoids having to set up a data source manually. Please
+  note that ODBC connections to Excel files work only in some cases (you need to
+  define named ranges).
+- before creating a speed optimized system Elba will check if the schema has
+  been saved.
+- Elba warns before creating a speed optimized system that this changes the
+  database and the conceptual schema.
+- the table/key pair for the DB connection now gets selected via two combo
+  boxes (should be more intuitive).
+- after setting up the DB connection, a popup notifies the user about the
+  success.
+- Bugfix: last CSC import and last export location are remembered between program
+  sessions.
+
+Specific for Siena (still not fully complete):
+==============================================
+- added import of object-attribute lists (similar to ConExp: a list of objects
+  with their attributes in lines of the form "obj:attr1;attr2;...").
+
+Other new experimental features:
+================================
+
+
+
+Changes between version 1.4 and version 1.4.1 of the ToscanaJ 
+program suite:
+
+Affecting different programs:
+=============================
+- Bugfix: MRU menu after File->New is handled correctly now
+- Bugfix: title of the window adjusts after File->New
+
+Specific for ToscanaJ:
+======================
+- Bugfix: in some occasions exceptions where thrown when using SQL queries
+  (lattice infimum with empty contingent)
+
+Specific for Elba:
+==================
+- Bugfix: ordinal scale generation works again
+- Bugfix: nominal scale generator allows re-adding values after removal from
+  selection
+- Bugfix: nominal scales across columns add the column names and can have the 
+  same values in different columns without breaking the scale
+- Bugfix: grid scale generation works again
+
+
+
+
+Changes between version 1.3 and version 1.4 of the ToscanaJ 
+program suite:
+
+Affecting different programs:
+=============================
+- contexts do have a notion of object and attribute order now,
+  which they remember, the order can be changed using the context
+  menus in the context editor
+- instead of having some color modes, five color schemas can now be
+  selected: the four corresponding to the color modes, with a
+  duplication of the default one: one of these will stay with default
+  values, the other one gets the values changed in the preferences
+  dialog
+- the order of objects and attributes in the context will be remembered,
+  even after saving and loading a CSX file
+- bugfix: the diagram export dialog now remembers the last export 
+  position properly (was broken during session and in between sessions
+  if the exported file was deleted)
+- the Save As... dialog now uses the location of the current file
+- when exporting diagrams a new option allows setting a background
+  color, which will also be used in formats otherwise supporting a
+  transparent background. This can be useful if the program used to
+  import e.g. a PNG into can not handle the transparency properly
+
+Specific for ToscanaJ:
+======================
+- the tooltip on the labels and nodes, showing the intent and extent
+  of the concept, has been replaced with a non-modal dialog, which can
+  be opened to show the same information for the concept underneath
+  the mouse (the tooltip was found distracting by many users)
+
+Specific for Elba:
+==================
+- bugfix: export object and attribute lists with Tools->Export Realized 
+  Scales... works again
+- bugfix: most recently used files are available even if loading the last
+  one failed
+
+Specific for Siena (still not fully complete):
+==============================================
+- many-valued contexts imported from Cernato XML can be seen (and
+  edited, but this is not finished and will not affect anything yet)
+- transition arrow styles have extra option to change the width of
+  the border line
+- three query types are allowed: count, list, distribution (as in
+  the ToscanaJ defaults)
+- diagram labels and contexts based on the Cernato import feature will
+  use the same order as in the imported many-valued context
+- arrow styles are now maintained with the diagram color schema, and 
+  thus stored in the session management, i.e they are remembered when
+  closing and reopening Siena. This also means that changing the schema
+  implies changing the arrow styles, although this is not instantly
+  visible (some repaints missing) and the standard settings for the
+  grayscale and black&white are not yet adjusted -- this can be done by
+  the user and will be remembered.
+- bugfix: most recently used files are available even if loading the last
+  one failed
+- if Cernato diagrams fail to be created (can happen if the XML file is
+  inconsistent), an error message will appear and the following diagrams
+  will still be created if possible
+  
+
+
+
+Changes between versions 1.2 and 1.3 version of the ToscanaJ 
+program suite:
+
+Affecting all programs:
+=======================
+- diagram views now have tooltips on the nodes, showing intent and
+  extent
+- the image writers using libraries have been outsourced into plugins,
+  thus reducing the download size reasonably
+- the user settings and session managment now use Java's Preferences
+  API, which means we don't rely on write access to the installation
+  directory anymore and multi-user systems should now store the settings
+  on a per-user basis
+- look and feels can be loaded via plugins
+
+ToscanaJ:
+=========
+- the preferences can now be edited with a GUI
+
+Elba:
+=====
+
+Siena (still not fully complete):
+=================================
+- the temporal controls are now officially part of the program and
+  can be toggled from the view menu. They appear below the diagram
+  list now in a redesigned layout
+- the color and style of the arrows can be edited
+- arrow setups are saved and loaded
+
+Other new experimental features:
+================================
