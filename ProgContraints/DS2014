@@ -1,0 +1,74 @@
+:- lib(ic).
+
+data(   [e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13],
+	[ 1, 1, 0, 0, 1, 0, 0, 0, 1,  1,  1,  0,  0],
+	[ 4, 5, 4, 4, 5, 5, 4, 5, 5,  5,  4,  6,  4],
+	11000,
+	6400,
+	700
+     ).
+
+aides(CROUS,ALLOC) :-
+	CROUS = [_,_,_,_,_,_,_,_,_,_,_,_,_],
+	ALLOC = [_,_,_,_,_,_,_,_,_,_,_,_,_],
+	CROUS #:: [0,200,400],
+	ALLOC #:: [0,200].
+
+membreCrous(aides(CROUS,_)) :-
+	aides(CROUS,_),
+	data(_,Membre,_,_,_,_),
+	(for(_,1,13), fromto(CROUS, In1, Out1, _), fromto(Membre, In2, Out2, _)
+	do(
+		[X1|Y1] = In1,
+		[X2|Y2] = In2,
+		X1 #= X1*X2,
+		Out1 = Y1,
+		Out2 = Y2
+	)).
+
+pasDeuxAides(aides(CROUS,ALLOC)) :-
+	aides(CROUS,ALLOC),
+	(for(_,1,13), fromto(CROUS, In1, Out1, _), fromto(ALLOC, In2, Out2, _)
+	do(
+		[X1|Y1] = In1,
+		[X2|Y2] = In2,
+		X1*X2 #= 0,
+		Out1 = Y1,
+		Out2 = Y2
+	)).
+
+totAides(aides(CROUS,ALLOC),TotCrous,TotAlloc) :-
+	aides(CROUS,ALLOC),
+	data(_,_,Mois,_,_,_),
+	(for(_,1,13), fromto(CROUS, In1, Out1, _), fromto(Mois, In2, Out2, _), fromto(0,In, Out, TotCrous)
+	do(
+		[X1|Y1] = In1,
+		[X2|Y2] = In2,
+		Out #= In + X1*X2,
+		Out1 = Y1,
+		Out2 = Y2
+	)),
+	(for(_,1,13), fromto(ALLOC, In1, Out1, _), fromto(Mois, In2, Out2, _), fromto(0,In, Out, TotAlloc)
+	do(
+		[X1|Y1] = In1,
+		[X2|Y2] = In2,
+		Out #= In + X1*X2,
+		Out1 = Y1,
+		Out2 = Y2
+	)).
+
+solve(aides(CROUS,ALLOC),TotCrous,TotAlloc, Sum) :-
+	aides(CROUS,ALLOC),
+	data(_,_,_,Max,MaxCrous,Inter),
+	membreCrous(aides(CROUS,ALLOC)),
+	pasDeuxAides(aides(CROUS,ALLOC)),
+	totAides(aides(CROUS,ALLOC),TotCrous,TotAlloc),
+	TotCrous #< MaxCrous,
+	Diff #= MaxCrous - TotCrous,
+	Inter #>= Diff,
+	Sum #= TotCrous + TotAlloc,
+	Sum #< Max,
+	append(CROUS,ALLOC,Res),
+	labeling(Res).
+	
+	
